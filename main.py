@@ -2,46 +2,147 @@ import pygame
 import sys
 import random
 
-#DEPENDE DEL NIVEL
+# DEPENDE DEL NIVEL
 TAMANO_CELDA = 20
 ANCHO = 20
 ALTO = 15
 COLORES = {
-    "fondo": (0, 0, 0),
+    "fondo": (83, 208, 248),
     "serpiente": (0, 255, 0),
     "manzana": (255, 0, 0),
     "bloque": (128, 128, 128),
-    "portal": (0, 0, 255)
+    "portal": (161, 17, 223)
 }
-level_map = [
-    "####################",
-    "#000000000000000000#",
-    "#000000000000000000#",
-    "#000000000000000000#",
-    "#0000000000?0000000#",
-    "#000000000?00000000#",
-    "#00000000?000000000#",
-    "#0000000?0000000000#",
-    "#000000?00000000000#",
-    "#00000?00000000000@#",
-    "####################",
-    "####################",
-    "####################",
-    "####################",
-    "####################"
+
+# Definir los 5 niveles
+niveles = [
+    {
+        "mapa": [
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "00000?##?0000@0",
+            "000#########000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+        ],
+        "serpiente_inicio": [[4, 9]],
+        "longitud_inicio": 1
+    },
+    {
+        "mapa": [
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000##0000000",
+            "000000##0000000",
+            "000000##0@00000",
+            "00###0##0#00000",
+            "000#00#00#00000",
+            "000#00000#00000",
+            "000#0?####00000",
+            "000##0#00000000",
+            "000000000000000",
+        ],
+        "serpiente_inicio": [[4, 8], [3, 8], [2, 8]],
+        "longitud_inicio": 3
+    },
+    {
+        "mapa": [
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "00000000000@000",
+            "00####00000#000",
+            "00#00#00000#000",
+            "00#0000?000#000",
+            "00####000###000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+        ],
+        "serpiente_inicio": [[4, 4], [3, 4], [2, 4]],
+        "longitud_inicio": 3
+    },
+    {
+        "mapa": [
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "00000000000@000",
+            "00####00000#000",
+            "00#00#00000#000",
+            "00#0000?000#000",
+            "00####000###000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+        ],
+        "serpiente_inicio": [[4, 2], [4, 3], [4, 4]],
+        "longitud_inicio": 3
+    },
+    {
+        "mapa": [
+            "000000000000000",
+            "000000000000000",
+            "0000######000000",
+            "0000#000#0000000",
+            "0000#000#0000000",
+            "0000#000#0000000",
+            "0000#000#0000000",
+            "0000#000#0000000",
+            "0000?##?0000000",
+            "0000####000@0000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+            "000000000000000",
+        ],
+        "serpiente_inicio": [[5, 5]],
+        "longitud_inicio": 6
+    }
 ]
+
+# Variables
+nivel_actual = 0
 mapa = []
 
+# Cargar imágenes
+imagen_manzana = pygame.image.load("manzana.png")
+imagen_manzana = pygame.transform.scale(imagen_manzana, (TAMANO_CELDA, TAMANO_CELDA))
+imagen_bloque = pygame.image.load("bloque.png")
+imagen_bloque = pygame.transform.scale(imagen_bloque, (TAMANO_CELDA, TAMANO_CELDA))
 
-#INICIA
+# Inicializar pygame
 pygame.init()
-ventana = pygame.display.set_mode((ANCHO * TAMANO_CELDA, ALTO * TAMANO_CELDA))  # Asegurarnos de que el tamaño de la ventana sea correcto
+ventana = pygame.display.set_mode((ANCHO * TAMANO_CELDA, ALTO * TAMANO_CELDA))  
 reloj = pygame.time.Clock()
 
-#FUNCIONES
+# Funciones
 def crear_mapa():
     global mapa
-    for fila in level_map:
+    mapa.clear()  
+    for fila in niveles[nivel_actual]["mapa"]:
         fila_lista = []
         for celda in fila:
             if celda == "#":
@@ -61,56 +162,39 @@ def dibujar_mapa():
         for x in range(ANCHO):
             if x < len(mapa[y]) and y < len(mapa):
                 if mapa[y][x] == "bloque":
-                    pygame.draw.rect(ventana, COLORES["bloque"], (x*TAMANO_CELDA, y*TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+                    ventana.blit(imagen_bloque, (x * TAMANO_CELDA, y * TAMANO_CELDA))
                 elif mapa[y][x] == "manzana":
-                    pygame.draw.rect(ventana, COLORES["manzana"], (x*TAMANO_CELDA, y*TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+                    ventana.blit(imagen_manzana, (x * TAMANO_CELDA, y * TAMANO_CELDA))
                 elif mapa[y][x] == "portal":
-                    pygame.draw.rect(ventana, COLORES["portal"], (x*TAMANO_CELDA, y*TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+                    pygame.draw.rect(ventana, COLORES["portal"], (x * TAMANO_CELDA, y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
 
 def dibujar_serpiente(serpiente):
-    for segmento in serpiente:
-        pygame.draw.rect(ventana, COLORES["serpiente"], (segmento[0]*TAMANO_CELDA, segmento[1]*TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+    for i, segmento in enumerate(serpiente):
+        if i == 0:  
+            pygame.draw.rect(ventana, (0, 200, 0), (segmento[0] * TAMANO_CELDA, segmento[1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))  # Color más oscuro
+        else:
+            pygame.draw.rect(ventana, COLORES["serpiente"], (segmento[0] * TAMANO_CELDA, segmento[1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
 
 def mover_serpiente(serpiente, direccion):
     global mapa
     cabeza = serpiente[0]
     nueva_cabeza = [cabeza[0] + direccion[0], cabeza[1] + direccion[1]]
 
-    # Verifica colisiones con bloques o el propio cuerpo
     if nueva_cabeza in serpiente or mapa[nueva_cabeza[1]][nueva_cabeza[0]] == "bloque":
         return
 
-    # Mueve la serpiente
     serpiente.insert(0, nueva_cabeza)
     if mapa[nueva_cabeza[1]][nueva_cabeza[0]] != "manzana":
         serpiente.pop()
 
-    
-
-def verificar_gravedad(serpiente, mapa):
-    caer = True
-    for i, segmento in enumerate(serpiente):
-        x, y = segmento
-        if y + 1 >= ALTO or mapa[y + 1][x] == "bloque" or mapa[y + 1][x] == "manzana":
-            caer = False
-    if caer == True:
-        for i, segmento in enumerate(serpiente):
-            serpiente[i][1] += 1 
-        pygame.display.update()
-        reloj.tick(10)
-        pygame.time.wait(100) 
-        print(serpiente[0][1])
-        verificar_gravedad(serpiente, mapa)
-
-def verificar_colision_portal(serpiente, mapa):
+def verificar_colision_portal(serpiente):
     cabeza = serpiente[0]
     x, y = cabeza
     if mapa[y][x] == "portal":
-        print("¡Has encontrado el portal!")
         return True 
     return False
 
-def verificar_colision_manzana(serpiente, mapa):
+def verificar_colision_manzana(serpiente):
     cabeza = serpiente[0]
     x, y = cabeza
     if mapa[y][x] == "manzana":
@@ -125,11 +209,27 @@ def mostrar_mensaje(texto, tiempo=2):
     pygame.display.update()
     pygame.time.wait(tiempo * 1000)
 
+def verificar_gravedad(serpiente, mapa):
+    caer = True
+    for i, segmento in enumerate(serpiente):
+        x, y = segmento
+        if y + 1 >= ALTO or mapa[y + 1][x] == "bloque" or mapa[y + 1][x] == "manzana":
+            caer = False
+    if caer == True:
+        for i, segmento in enumerate(serpiente):
+            serpiente[i][1] += 1 
+        pygame.display.update()
+        reloj.tick(10)
+        pygame.time.wait(100) 
+        verificar_gravedad(serpiente, mapa)
+
 def crear_nivel():
+    global nivel_actual
     mapa = crear_mapa()
-    serpiente = [[5, 5]]
+    serpiente = niveles[nivel_actual]["serpiente_inicio"][:]
+    longitud = niveles[nivel_actual]["longitud_inicio"]
     direccion = [0, 0]
-    direccion_pending = [0, 0] 
+    direccion_pending = [0, 0]
 
     while True:
         for evento in pygame.event.get():
@@ -148,18 +248,22 @@ def crear_nivel():
 
         if direccion_pending != [0, 0]:
             direccion = direccion_pending
-            direccion_pending = [0, 0]  
+            direccion_pending = [0, 0]
             mover_serpiente(serpiente, direccion)
 
-        if verificar_colision_portal(serpiente, mapa):
-            mostrar_mensaje("¡Has ganado!", 2)  
-            pygame.quit()  
-            sys.exit()
+        if verificar_colision_portal(serpiente):
+            if nivel_actual < len(niveles) - 1:
+                nivel_actual += 1
+                mostrar_mensaje("¡Nivel completado!", 2)
+                crear_nivel()  # Llamar al siguiente nivel
+            else:
+                mostrar_mensaje("¡Has completado todos los niveles!", 2)
+                pygame.quit()
+                sys.exit()
 
-        if verificar_colision_manzana(serpiente, mapa):
+        if verificar_colision_manzana(serpiente):
             x, y = serpiente[0]
-            mapa[y][x] = None  
-            serpiente.append([serpiente[-1][0], serpiente[-1][1]])  
+            mapa[y][x] = None
 
         ventana.fill(COLORES["fondo"])
         dibujar_mapa()
@@ -169,6 +273,8 @@ def crear_nivel():
         reloj.tick(10)
 
 def main():
+    global nivel_actual
+    nivel_actual = 0
     crear_nivel()
 
 if __name__ == "__main__":
