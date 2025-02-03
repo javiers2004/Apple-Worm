@@ -1,11 +1,18 @@
 import pygame
 import sys
-import random
 
-# DEPENDE DEL NIVEL
-TAMANO_CELDA = 20
+# Inicializar pygame para obtener la resolución de la pantalla
+pygame.init()
+info_pantalla = pygame.display.Info()
+ANCHO_PANTALLA = info_pantalla.current_w
+ALTO_PANTALLA = info_pantalla.current_h
+
+# Configuración de bloques y tamaño dinámico
+TAMANO_CELDA = ANCHO_PANTALLA // 20  # 20 bloques de ancho
 ANCHO = 20
-ALTO = 15
+ALTO = ALTO_PANTALLA // TAMANO_CELDA
+
+
 COLORES = {
     "fondo": (83, 208, 248),
     "serpiente": (0, 255, 0),
@@ -14,112 +21,59 @@ COLORES = {
     "portal": (161, 17, 223)
 }
 
-# Definir los 5 niveles
+# Definir niveles
 niveles = [
     {
         "mapa": [
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "00000?##?0000@0",
-            "000#########000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
+            "00000000000000000000",
+            "00000000000000000000",
+            "00000000000000000000",
+            "00000000000000000000",
+            "00000000000000000000",
+            "00000000000000000000",
+            "0000000?##?00000@000",
+            "00000#########000000",
+            "00000000000000000000",
+            "00000000000000000000",
+            "00000000000000000000",
         ],
-        "serpiente_inicio": [[4, 9]],
+        "serpiente_inicio": [[5, 6]],
         "longitud_inicio": 1
     },
     {
         "mapa": [
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000##0000000",
-            "000000##0000000",
-            "000000##0@00000",
-            "00###0##0#00000",
-            "000#00#00#00000",
-            "000#00000#00000",
-            "000#0?####00000",
-            "000##0#00000000",
-            "000000000000000",
+            "000000000000000000000",
+            "000000000000000000000",
+            "000000000##0000000000",
+            "000000000##0000000000",
+            "000000000##0@00000000",
+            "00000###0##0#00000000",
+            "000000#00#00#00000000",
+            "000000#00000#00000000",
+            "000000#0?####00000000",
+            "000000##0#00000000000",
+            "000000000000000000000",
+
         ],
-        "serpiente_inicio": [[4, 8], [3, 8], [2, 8]],
+        "serpiente_inicio": [[7, 4], [6, 4], [5, 4]],
         "longitud_inicio": 3
     },
     {
         "mapa": [
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "00000000000@000",
-            "00####00000#000",
-            "00#00#00000#000",
-            "00#0000?000#000",
-            "00####000###000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
+            "00000000000000000000",            
+            "00000000000000000000",
+            "00000000000000000000",
+            "0000000000000@000000",
+            "0000####00000#000000",
+            "0000#00#00000#000000",
+            "0000#0000?000#000000",
+            "0000####000###000000",
+            "00000000000000000000",
+            "00000000000000000000",
+            "00000000000000000000"
         ],
-        "serpiente_inicio": [[4, 4], [3, 4], [2, 4]],
+        "serpiente_inicio": [[6, 3], [5, 3], [4, 3]],
         "longitud_inicio": 3
-    },
-    {
-        "mapa": [
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "00000000000@000",
-            "00####00000#000",
-            "00#00#00000#000",
-            "00#0000?000#000",
-            "00####000###000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-        ],
-        "serpiente_inicio": [[4, 2], [4, 3], [4, 4]],
-        "longitud_inicio": 3
-    },
-    {
-        "mapa": [
-            "000000000000000",
-            "000000000000000",
-            "0000######000000",
-            "0000#000#0000000",
-            "0000#000#0000000",
-            "0000#000#0000000",
-            "0000#000#0000000",
-            "0000#000#0000000",
-            "0000?##?0000000",
-            "0000####000@0000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-            "000000000000000",
-        ],
-        "serpiente_inicio": [[5, 5]],
-        "longitud_inicio": 6
     }
 ]
 
@@ -133,9 +87,8 @@ imagen_manzana = pygame.transform.scale(imagen_manzana, (TAMANO_CELDA, TAMANO_CE
 imagen_bloque = pygame.image.load("bloque.png")
 imagen_bloque = pygame.transform.scale(imagen_bloque, (TAMANO_CELDA, TAMANO_CELDA))
 
-# Inicializar pygame
-pygame.init()
-ventana = pygame.display.set_mode((ANCHO * TAMANO_CELDA, ALTO * TAMANO_CELDA))  
+# Inicializar ventana
+ventana = pygame.display.set_mode((ANCHO * TAMANO_CELDA, ALTO * TAMANO_CELDA), pygame.FULLSCREEN)
 reloj = pygame.time.Clock()
 
 # Funciones
@@ -211,17 +164,22 @@ def mostrar_mensaje(texto, tiempo=2):
 
 def verificar_gravedad(serpiente, mapa):
     caer = True
-    for i, segmento in enumerate(serpiente):
-        x, y = segmento
-        if y + 1 >= ALTO or mapa[y + 1][x] == "bloque" or mapa[y + 1][x] == "manzana":
-            caer = False
-    if caer == True:
+    while caer == True:
         for i, segmento in enumerate(serpiente):
-            serpiente[i][1] += 1 
-        pygame.display.update()
-        reloj.tick(10)
-        pygame.time.wait(100) 
-        verificar_gravedad(serpiente, mapa)
+            x, y = segmento
+            if mapa[y + 1][x] == "bloque" or mapa[y + 1][x] == "manzana":
+                caer = False
+        if caer == True:
+            for i, segmento in enumerate(serpiente):
+                serpiente[i][1] += 1 
+            pygame.display.update()
+            reloj.tick(10)
+            pygame.time.wait(50) 
+            ventana.fill(COLORES["fondo"])
+            dibujar_mapa()
+            dibujar_serpiente(serpiente)
+
+        
 
 def crear_nivel():
     global nivel_actual
@@ -278,4 +236,4 @@ def main():
     crear_nivel()
 
 if __name__ == "__main__":
-    main()
+    main()  
