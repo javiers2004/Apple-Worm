@@ -1,5 +1,6 @@
 import pygame
 import sys
+from niveles import niveles
 
 # Inicializar pygame para obtener la resolución de la pantalla
 pygame.init()
@@ -20,79 +21,6 @@ COLORES = {
     "bloque": (128, 128, 128),
     "portal": (161, 17, 223)
 }
-
-# Definir niveles
-niveles = [
-    {
-        "mapa": [
-            "00000000000000000000",
-            "00000000000000000000",
-            "00000000000000000000",
-            "00000000000000000000",
-            "00000000000000000000",
-            "00000000000000000000",
-            "0000000?##?00000@000",
-            "00000#########000000",
-            "00000000000000000000",
-            "00000000000000000000",
-            "00000000000000000000",
-        ],
-        "serpiente_inicio": [[5, 6]],
-        "longitud_inicio": 1
-    },
-    {
-        "mapa": [
-            "000000000000000000000",
-            "000000000000000000000",
-            "000000000##0000000000",
-            "000000000##0000000000",
-            "000000000##0@00000000",
-            "00000###0##0#00000000",
-            "000000#00#00#00000000",
-            "000000#00000#00000000",
-            "000000#0?####00000000",
-            "000000##0#00000000000",
-            "000000000000000000000",
-
-        ],
-        "serpiente_inicio": [[7, 4], [6, 4], [5, 4]],
-        "longitud_inicio": 3
-    },
-    {
-        "mapa": [
-            "00000000000000000000",            
-            "00000000000000000000",
-            "00000000000000000000",
-            "0000000000000@000000",
-            "0000####00000#000000",
-            "0000#00#00000#000000",
-            "0000#0000?000#000000",
-            "0000####000###000000",
-            "00000000000000000000",
-            "00000000000000000000",
-            "00000000000000000000"
-        ],
-        "serpiente_inicio": [[6, 3], [5, 3], [4, 3]],
-        "longitud_inicio": 3
-    },
-    {
-        "mapa": [
-            "00000000000000000000",            
-            "00000000000000000000",
-            "00000000000000000000",
-            "00000000000000000000",
-            "00000000000000000000",
-            "000000000??000000000",
-            "000000000??000000000",
-            "0000000######0000000",
-            "00000000000000000000",
-            "000000000000@0000000",
-            "00000000000000000000"
-        ],
-        "serpiente_inicio": [[7, 6]],
-        "longitud_inicio": 1
-    }
-]
 
 # Variables
 nivel_actual = 0
@@ -200,12 +128,28 @@ def mostrar_mensaje(texto, tiempo=2):
     pygame.display.update()
     pygame.time.wait(tiempo * 1000)
 
+def entrar_portal(serpiente):
+    while len(serpiente) > 0:
+        serpiente.pop()
+        pygame.display.update()
+        reloj.tick(10)
+        pygame.time.wait(100)
+        ventana.fill(COLORES["fondo"])
+        dibujar_mapa()
+        dibujar_serpiente(serpiente)
+        if len(serpiente) > 0:
+            pygame.draw.rect(ventana, COLORES["serpiente"], (serpiente[0][0] * TAMANO_CELDA, serpiente[0][1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+    pygame.display.update()
+    reloj.tick(10)
+    pygame.time.wait(100)
+    ventana.fill(COLORES["fondo"])
+    dibujar_mapa()
+
 def verificar_gravedad(serpiente, mapa):
     caer = True
     while caer == True:
         for i, segmento in enumerate(serpiente):
             x, y = segmento
-            # Verificar que y + 1 esté dentro del rango del mapa
             if y + 1 >= len(mapa) or mapa[y + 1][x] == "bloque" or mapa[y + 1][x] == "manzana":
                 caer = False
         if caer == True:
@@ -217,10 +161,7 @@ def verificar_gravedad(serpiente, mapa):
             ventana.fill(COLORES["fondo"])
             dibujar_mapa()
             dibujar_serpiente(serpiente)
-
-
-        
-
+     
 def crear_nivel():
     global nivel_actual
     mapa = crear_mapa()
@@ -250,10 +191,11 @@ def crear_nivel():
             mover_serpiente(serpiente, direccion)
 
         if verificar_colision_portal(serpiente):
+            entrar_portal(serpiente)
             if nivel_actual < len(niveles) - 1:
                 nivel_actual += 1
                 mostrar_mensaje("¡Nivel completado!", 2)
-                crear_nivel()  # Llamar al siguiente nivel
+                crear_nivel() 
             else:
                 mostrar_mensaje("¡Has completado todos los niveles!", 2)
                 pygame.quit()
