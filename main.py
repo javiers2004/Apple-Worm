@@ -64,6 +64,13 @@ def crear_mapa():
             elif celda == "?":
                 fila_lista.append("manzana")
         mapa.append(fila_lista)
+            
+    for a in range(ANCHO):
+        fila_lista = []
+        for i in range(10):
+            fila_lista.append(None)
+        mapa.append(fila_lista)
+    
     return mapa
 
 def dibujar_mapa():
@@ -77,6 +84,9 @@ def dibujar_mapa():
                     ventana.blit(imagen_manzana, (x * TAMANO_CELDA, y * TAMANO_CELDA))
                 elif mapa[y][x] == "portal":
                     dibujar_portal_animado(x, y)
+                #elif mapa[y][x] == "pincho":
+                    #ventana.blit(imagen_pincho, (x * TAMANO_CELDA, y * TAMANO_CELDA))
+
 
 def dibujar_serpiente(serpiente):
     for i, segmento in enumerate(serpiente):
@@ -150,7 +160,7 @@ def verificar_gravedad(serpiente, mapa):
     while caer == True:
         for i, segmento in enumerate(serpiente):
             x, y = segmento
-            if y + 1 >= len(mapa) or mapa[y + 1][x] == "bloque" or mapa[y + 1][x] == "manzana":
+            if y + 1 >= len(mapa) - 10 or mapa[y + 1][x] == "bloque" or mapa[y + 1][x] == "manzana":
                 caer = False
         if caer == True:
             for i, segmento in enumerate(serpiente):
@@ -205,6 +215,8 @@ def crear_nivel():
             x, y = serpiente[0]
             mapa[y][x] = None
 
+        #if verificar_colision_pincho(serpiente):
+            #acabar
         ventana.fill(COLORES["fondo"])
         dibujar_mapa()
         dibujar_serpiente(serpiente)
